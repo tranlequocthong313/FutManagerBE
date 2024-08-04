@@ -1,22 +1,18 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
-from django.contrib.auth import get_user_model
-from field.models import Field
 from app.models import BaseModel
-
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from field.models import Field
 
 # Tạo các model tại đây
 
 
 class Review(BaseModel):
     user = models.ForeignKey(
-        verbose_name=" Người nhận đánh giá",
         to=get_user_model(),
         on_delete=models.CASCADE,
     )
-    football_field = models.ForeignKey(
-        verbose_name="Sân bóng", to=Field, on_delete=models.CASCADE
-    )
+    football_field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )

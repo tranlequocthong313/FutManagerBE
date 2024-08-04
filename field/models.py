@@ -1,9 +1,9 @@
 # Create your models here.
-from django.db import models
-from cloudinary.models import CloudinaryField
 from app.models import BaseModel
-from user.models import User
+from cloudinary.models import CloudinaryField
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+from user.models import User
 
 
 class Field(BaseModel):
@@ -55,9 +55,7 @@ class Field(BaseModel):
 
 
 class FieldStatusHistory(BaseModel):
-    football_field = models.ForeignKey(
-        verbose_name=_("Sân được bảo trì"), to=Field, on_delete=models.CASCADE
-    )
+    football_field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=20,
         choices=Field.FieldStatus.choices,
@@ -74,12 +72,8 @@ class FieldStatusHistory(BaseModel):
 
 
 class Booking(BaseModel):
-    user = models.ForeignKey(
-        verbose_name=_("Người đặt"), to=User, on_delete=models.CASCADE
-    )
-    field = models.ForeignKey(
-        verbose_name=_("Sân được đặt"), to=Field, on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
     from_time = models.TimeField()
     to_time = models.TimeField()
     total_amount = models.DecimalField(
@@ -89,6 +83,7 @@ class Booking(BaseModel):
     note = models.TextField(blank=True, null=True)
     booker_name = models.CharField(max_length=50, blank=False, null=False)
     phone_number = models.CharField(max_length=11, blank=False, null=False)
+    paid = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _("Đặt sân bóng")

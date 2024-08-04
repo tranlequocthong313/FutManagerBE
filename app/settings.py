@@ -12,10 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import base64
 import os
-from dotenv import load_dotenv
 from pathlib import Path
+
 import cloudinary
 import pymysql
+from dotenv import load_dotenv
 
 pymysql.install_as_MySQLdb()
 
