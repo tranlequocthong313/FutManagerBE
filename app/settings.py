@@ -35,7 +35,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = "user.User"
 
 
 # Application definition
@@ -99,7 +99,7 @@ DATABASES = {
         "NAME": os.environ.get("MYSQL_DATABASE"),
         "USER": os.environ.get("MYSQL_USER"),
         "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
-        "HOST": os.environ.get("MYSQL_HOST", ""),
+        "HOST": os.environ.get("MYSQL_HOST"),
         "PORT": os.environ.get("MYSQL_PORT"),
         "OPTIONS": {"charset": "utf8mb4"},
     }
@@ -251,3 +251,8 @@ MOMO_SECRET_KEY = os.environ.get("MOMO_SECRET_KEY")
 MOMO_ENDPOINT = os.environ.get("MOMO_ENDPOINT")
 MOMO_REDIRECT_URL = os.environ.get("MOMO_REDIRECT_URL")
 MOMO_IPN_URL = os.environ.get("MOMO_IPN_URL")
+
+APP_NAME = "FutManager"
+
+ADMIN_LIST_PER_PAGE = 10
+ADMIN_EMPTY_VALUE_DISPLAY = "-- empty --"
