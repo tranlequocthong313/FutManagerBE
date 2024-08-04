@@ -5,8 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        CUSTOMER = 'customer', _('Khách hàng')
-        ADMIN = 'admin', _('Quản Trị Viên')
+        CUSTOMER = "customer", _("Khách hàng")
+        ADMIN = "admin", _("Quản Trị Viên")
 
     full_name = models.CharField(max_length=50, default="None")
     phone_number = models.CharField(max_length=11, blank=True, null=True)

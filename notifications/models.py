@@ -8,13 +8,12 @@ from .types import EntityType, SendType  # Import các Enum types
 
 # Tạo các model tại đây
 
+
 class NotificationContent(BaseModel):
     entity_id = models.CharField(max_length=100, blank=False, null=False)
     image = CloudinaryField(null=True)
     entity_type = models.CharField(
-        max_length=255,
-        choices=EntityType.choices,
-        null=False
+        max_length=255, choices=EntityType.choices, null=False
     )
 
     class Meta:
@@ -28,13 +27,14 @@ class NotificationContent(BaseModel):
 
 class Notification(BaseModel):
     read = models.BooleanField(default=False)
-    user = models.ForeignKey(verbose_name="Người gửi", to=User, on_delete=models.CASCADE)
-    notification_content = models.ForeignKey(verbose_name="Nội dung thông báo", to=NotificationContent,
-                                             on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    notification_content = models.ForeignKey(
+        verbose_name="Nội dung thông báo",
+        to=NotificationContent,
+        on_delete=models.CASCADE,
+    )
     send_type = models.CharField(
-        max_length=20,
-        choices=SendType.choices,
-        default=SendType.UNICAST
+        max_length=20, choices=SendType.choices, default=SendType.UNICAST
     )
 
     class Meta:
@@ -47,8 +47,12 @@ class Notification(BaseModel):
 
 
 class NotificationRecipient(BaseModel):
-    notification_content = models.ForeignKey(verbose_name=" Nội dung thông báo", to=NotificationContent, on_delete=models.CASCADE)
-    user = models.ForeignKey(verbose_name=" Người nhận thông báo", to=User, on_delete=models.CASCADE)
+    notification_content = models.ForeignKey(
+        to=NotificationContent, on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        verbose_name=" Người nhận thông báo", to=User, on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = "Người nhận thông báo"
