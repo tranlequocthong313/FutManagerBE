@@ -24,7 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -35,6 +34,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+
+AUTH_USER_MODEL = 'user.User'
 
 
 # Application definition
@@ -48,6 +49,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "user",
+    "field",
+    "help",
+    "notifications",
+    "payment",
+    "review",
+    "service",
 ]
 
 MIDDLEWARE = [
@@ -82,7 +90,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "app.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -92,7 +99,7 @@ DATABASES = {
         "NAME": os.environ.get("MYSQL_DATABASE"),
         "USER": os.environ.get("MYSQL_USER"),
         "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
-        "HOST": os.environ.get("MYSQL_HOST"),
+        "HOST": os.environ.get("MYSQL_HOST", ""),
         "PORT": os.environ.get("MYSQL_PORT"),
         "OPTIONS": {"charset": "utf8mb4"},
     }
@@ -118,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -130,7 +136,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -139,12 +144,10 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -215,23 +218,23 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-firebase_credentials = {
-    "type": os.environ.get("FIREBASE_TYPE"),
-    "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
-    "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
-    "private_key": base64.b64decode(
-        os.environ.get("FIREBASE_PRIVATE_KEY").encode("ascii")
-    ).decode("ascii"),
-    "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
-    "client_id": os.environ.get("FIREBASE_CLIENT_ID"),
-    "auth_uri": os.environ.get("FIREBASE_AUTH_URI"),
-    "token_uri": os.environ.get("FIREBASE_TOKEN_URI"),
-    "auth_provider_x509_cert_url": os.environ.get(
-        "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
-    ),
-    "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_X509_CERT_URL"),
-    "universe_domain": os.environ.get("FIREBASE_UNIVERSE_DOMAIN"),
-}
+# firebase_credentials = {
+#     "type": os.environ.get("FIREBASE_TYPE"),
+#     "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
+#     "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
+#     "private_key": base64.b64decode(
+#         os.environ.get("FIREBASE_PRIVATE_KEY").encode("ascii")
+#     ).decode("ascii"),
+#     "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
+#     "client_id": os.environ.get("FIREBASE_CLIENT_ID"),
+#     "auth_uri": os.environ.get("FIREBASE_AUTH_URI"),
+#     "token_uri": os.environ.get("FIREBASE_TOKEN_URI"),
+#     "auth_provider_x509_cert_url": os.environ.get(
+#         "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
+#     ),
+#     "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_X509_CERT_URL"),
+#     "universe_domain": os.environ.get("FIREBASE_UNIVERSE_DOMAIN"),
+# }
 
 VNPAY_TMN_CODE = os.environ.get("VNPAY_TMN_CODE")
 VNPAY_HASH_SECRET_KEY = os.environ.get("VNPAY_HASH_SECRET_KEY")
