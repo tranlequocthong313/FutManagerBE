@@ -5,17 +5,21 @@ from django.utils.translation import gettext_lazy as _
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        CUSTOMER = 'customer', _('Customer')
-        MANAGER = 'manager', _('Manager')
+        CUSTOMER = 'customer', _('Khách hàng')
+        ADMIN = 'admin', _('Quản Trị Viên')
 
-    first_name = models.CharField(max_length=30, blank=False, null=False)
-    last_name = models.CharField(max_length=30, blank=False, null=False)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    full_name = models.CharField(max_length=50, default="None")
+    phone_number = models.CharField(max_length=11, blank=True, null=True)
+    # email có trong Abstract rồi nha
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
         default=Role.CUSTOMER,
     )
 
+    class Meta:
+        verbose_name = "Người dùng"
+        verbose_name_plural = "Người dùng"
+
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.full_name}"
