@@ -1,7 +1,4 @@
-from django.db import models
-
 # Create your models here.
-
 from django.db import models
 from cloudinary.models import CloudinaryField
 from app.models import BaseModel
@@ -11,14 +8,14 @@ from django.utils.translation import gettext_lazy as _
 
 class Field(BaseModel):
     class FieldStatus(models.TextChoices):
-        AVAILABLE = 'available', _('TRỐNG')
-        BOOKED = 'booked', _('ĐÃ ĐẶT')
-        MAINTENANCE = 'maintenance', _('ĐANG BẢO TRÌ')
+        AVAILABLE = "Available", _("TRỐNG")
+        BOOKED = "Booked", _("ĐÃ ĐẶT")
+        MAINTENANCE = "Maintenance", _("ĐANG BẢO TRÌ")
 
     class FieldType(models.TextChoices):
-        TYPE_5 = '5', _('sân 5')
-        TYPE_7 = '7', _('sân 7')
-        TYPE_11 = '11', _('sân 11')
+        TYPE_5 = "5", _("Sân 5")
+        TYPE_7 = "7", _("Sân 7")
+        TYPE_11 = "11", _("Sân 11")
 
     name = models.CharField(max_length=50, unique=True)
     img = CloudinaryField(null=True)
@@ -44,9 +41,23 @@ class Field(BaseModel):
     def is_booked(self):
         return self.status == self.FieldStatus.BOOKED
 
+    @property
+    def img_url(self):
+        if self.img:
+            self.img.url_options.update({"secure": True})
+            return self.img.url
+        return self.img
+
+    @property
+    def avg_rating(self):
+        rating = self.review_set.aggregate(models.Avg("rating")).get("rating__avg")
+        return rating if rating is not None else 0.0
+
 
 class FieldStatusHistory(BaseModel):
-    football_field = models.ForeignKey(verbose_name=_("Sân được bảo trì"), to=Field, on_delete=models.CASCADE)
+    football_field = models.ForeignKey(
+        verbose_name=_("Sân được bảo trì"), to=Field, on_delete=models.CASCADE
+    )
     status = models.CharField(
         max_length=20,
         choices=Field.FieldStatus.choices,
@@ -63,11 +74,17 @@ class FieldStatusHistory(BaseModel):
 
 
 class Booking(BaseModel):
-    user = models.ForeignKey(verbose_name=_("Người đặt"), to=User, on_delete=models.CASCADE)
-    field = models.ForeignKey(verbose_name=_("Sân được đặt"), to=Field, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        verbose_name=_("Người đặt"), to=User, on_delete=models.CASCADE
+    )
+    field = models.ForeignKey(
+        verbose_name=_("Sân được đặt"), to=Field, on_delete=models.CASCADE
+    )
     from_time = models.TimeField()
     to_time = models.TimeField()
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
+    total_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=False, null=False
+    )
     booking_date = models.DateField(auto_now_add=True)
     note = models.TextField(blank=True, null=True)
     booker_name = models.CharField(max_length=50, blank=False, null=False)
