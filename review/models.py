@@ -12,17 +12,17 @@ class Review(BaseModel):
         to=get_user_model(),
         on_delete=models.CASCADE,
     )
-    football_field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
+    field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
-    content = models.TextField(null=True, blank=True)
+    review = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Đánh giá"
         verbose_name_plural = "Đánh giá"
         ordering = ["-created_date"]  # Sắp xếp theo ngày tạo giảm dần
-        unique_together = ["user", "football_field"]
+        unique_together = ["user", "field"]
 
     def __str__(self):
-        return f"{self.user.__str__()} - {self.football_field} - {self.rating}"
+        return f"{self.user.__str__()} - {self.field} - {self.rating}"
