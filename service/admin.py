@@ -1,3 +1,15 @@
-from django.contrib import admin
+from app.admin import BaseModelAdmin, admin_site
+from .models import Introduction
 
-# Register your models here.
+
+class IntroductionAdmin(BaseModelAdmin):
+    list_display = [
+        introduction.name
+        for introduction in Introduction._meta.get_fields()
+        if not introduction.is_relation
+    ]
+    search_fields = ["version"]
+    list_filter = ["version"]
+
+
+admin_site.register(Introduction, IntroductionAdmin)

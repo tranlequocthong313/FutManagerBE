@@ -21,5 +21,7 @@ from .admin import admin_site
 urlpatterns = [
     path("", include("field.urls")),
     path("", include("payment.urls")),
+    path("", include("help.urls")),
+    path("", include("service.urls")),
     path("admin/", admin_site.urls),
 ]
