@@ -55,7 +55,7 @@ class Field(BaseModel):
 
 
 class FieldStatusHistory(BaseModel):
-    football_field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
+    field = models.ForeignKey(to=Field, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=20,
         choices=Field.FieldStatus.choices,
@@ -68,7 +68,7 @@ class FieldStatusHistory(BaseModel):
         verbose_name_plural = _("Lịch sử trạng thái sân bóng")
 
     def __str__(self):
-        return f"{self.football_field} - {self.status} from {self.start_date} to {self.end_date}"
+        return f"{self.field} - {self.status} from {self.start_date} to {self.end_date}"
 
 
 class Booking(BaseModel):

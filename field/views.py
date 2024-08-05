@@ -10,6 +10,8 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from review.models import Review
+from review.serializers import ReviewSerializer
 from user.models import User
 
 from field.models import Booking, Field
@@ -117,3 +119,42 @@ class FieldView(ListAPIView, ViewSet):
         )
         serializer = BookingListSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # @action(
+    #     methods=["post"],
+    #     detail=True,
+    #     url_path="ratings",
+    #     url_name="post_ratings",
+    #     permission_classes=[IsAuthenticated],
+    # )
+    # def add_rating(self, request, pk=None):
+    #     field = get_object_or_404(Field, pk=pk)
+    #     serializer = ReviewSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save(user=request.user, field=field)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # @action(
+    #     methods=["get"],
+    #     detail=True,
+    #     url_path="ratings",
+    #     url_name="get_ratings",
+    #     # permission_classes=[IsAuthenticated],
+    #     permission_classes=[AllowAny],
+    # )
+    # def list_ratings(self, request, pk=None):
+    #     field = get_object_or_404(Field, pk=pk)
+    #     reviews = Review.objects.filter(field=field)
+    #     serializer = ReviewSerializer(reviews, many=True)
+    #     average_rating = reviews.aggregate(Avg("rating"))["rating__avg"] or 0
+    #     total_rating = reviews.count()
+    #
+    #     return Response(
+    #         {
+    #             "count": total_rating,
+    #             "average_rating": average_rating,
+    #             "total_rating": total_rating,
+    #             "results": serializer.data,
+    #         }
+    #     )

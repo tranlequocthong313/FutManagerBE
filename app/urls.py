@@ -23,5 +23,6 @@ urlpatterns = [
     path("", include("payment.urls")),
     path("", include("help.urls")),
     path("", include("service.urls")),
+    path("", include("review.urls")),
     path("admin/", admin_site.urls),
 ]
