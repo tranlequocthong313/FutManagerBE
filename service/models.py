@@ -1,8 +1,8 @@
-from django.db import models
 from app.models import BaseModel
-
+from django.db import models
 
 # Tạo các model tại đây
+
 
 class Introduction(BaseModel):
     content = models.TextField()
@@ -11,7 +11,7 @@ class Introduction(BaseModel):
     class Meta:
         verbose_name = "Giới thiệu"
         verbose_name_plural = "Giới thiệu"
-        ordering = ['-created_date']  # Sắp xếp theo ngày tạo giảm dần
+        ordering = ["-created_date"]  # Sắp xếp theo ngày tạo giảm dần
 
     def __str__(self):
         return f"Version {self.version}"
@@ -24,7 +24,7 @@ class CustomerSupport(BaseModel):
     class Meta:
         verbose_name = "Hỗ trợ khách hàng"
         verbose_name_plural = "Hỗ trợ khách hàng"
-        ordering = ['service_name']  # Sắp xếp theo tên dịch vụ
+        ordering = ["service_name"]  # Sắp xếp theo tên dịch vụ
 
     def __str__(self):
         return self.service_name

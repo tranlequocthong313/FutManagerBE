@@ -17,7 +17,9 @@ class HelpCategory(BaseModel):
 
 
 class Help(BaseModel):
-    category = models.ForeignKey(to=HelpCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        to=HelpCategory, on_delete=models.CASCADE, related_name="helps"
+    )
     title = models.CharField(max_length=50, blank=False, null=False)
     content = models.TextField(blank=False, null=False)
 

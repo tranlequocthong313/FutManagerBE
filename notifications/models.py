@@ -1,10 +1,10 @@
+from app.models import BaseModel
+from cloudinary.models import CloudinaryField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from user.models import User
-from app.models import BaseModel
-from cloudinary.models import CloudinaryField
-from .types import EntityType, SendType  # Import các Enum types
 
+from .types import EntityType, SendType  # Import các Enum types
 
 # Tạo các model tại đây
 
