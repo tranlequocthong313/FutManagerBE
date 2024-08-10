@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.db.models import Avg
+from django.db.models import Avg, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from payment.services import PaymentService
@@ -158,3 +158,68 @@ class FieldView(ListAPIView, ViewSet):
     #             "results": serializer.data,
     #         }
     #     )
+
+    @action(
+        url_path="revenue/stats",
+        methods=["get"],
+        detail=False,
+        permission_classes=[IsAuthenticated],  # Đảm bảo người dùng đã xác thực
+    )
+    def revenue_stats(self, request):
+        year = request.query_params.get('year')
+        month = request.query_params.get('month')
+
+        if not year or not month:
+            return Response({
+                "status": 400,
+                "message": "Invalid query params"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            year = int(year)
+            month = int(month)
+            if month < 1 or month > 12:
+                raise ValueError("Invalid month value")
+        except ValueError:
+            return Response({
+                "status": 400,
+                "message": "Invalid query params"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            bookings = Booking.objects.filter(
+                booking_date__year=year,
+                booking_date__month=month,
+                paid=True
+            )
+
+            monthly_revenue = bookings.aggregate(total_revenue=Sum('total_amount'))['total_revenue'] or 0
+            daily_revenue = bookings.values('booking_date__day').annotate(
+                total_revenue=Sum('total_amount')
+            ).order_by('booking_date__day')
+
+            daily_revenue_list = []
+            for day in daily_revenue:
+                daily_revenue_list.append({
+                    "day": day['booking_date__day'],
+                    "total_revenue": float(day['total_revenue'])
+                })
+
+            response_data = {
+                "year": year,
+                "monthly_revenue": [
+                    {
+                        "month": month,
+                        "total_revenue": float(monthly_revenue),
+                        "daily_revenue": daily_revenue_list
+                    }
+                ]
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": 500,
+                "message": "Internal server error"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

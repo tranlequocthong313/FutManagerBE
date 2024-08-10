@@ -28,6 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             phone_number=validated_data['phone_number'],
             role=validated_data.get('role', User.Role.CUSTOMER),
+            username=validated_data['phone_number']
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -44,7 +45,7 @@ class LoginSerializer(serializers.Serializer):
 
         if phone_number and password:
             try:
-                user = User.objects.get(phone_number=phone_number)
+                user = User.objects.get(username=phone_number)
             except User.DoesNotExist:
                 raise serializers.ValidationError("Invalid credentials.")
 
