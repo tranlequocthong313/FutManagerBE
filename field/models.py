@@ -91,3 +91,7 @@ class Booking(BaseModel):
 
     def __str__(self):
         return f"Booking by {self.booker_name} for {self.field} from {self.from_time} to {self.to_time}"
+
+    def pay(self):
+        self.paid = True
+        self.save()

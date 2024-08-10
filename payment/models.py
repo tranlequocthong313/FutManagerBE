@@ -33,7 +33,7 @@ class Payment(BaseModel):
         if transaction_id:
             self.transaction_id = transaction_id
         self.status = Payment.PaymentStatus.SUCCESS
-        self.booking.paid = True
+        self.booking.pay()
         self.save()
         return True
 
