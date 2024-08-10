@@ -17,7 +17,7 @@ class PaymentService:
         if booking is None:
             raise ValueError("request and booking are required")
         if payment_channel == Payment.PaymentChannel.MOMO:
-            return self.pay_with_momo(booking)
+            return self.pay_with_momo(request, booking)
         elif payment_channel == Payment.PaymentChannel.VN_PAY:
             return self.pay_with_vnpay(request, booking)
         raise ValueError("Payment channel is invalid")
@@ -40,8 +40,8 @@ class PaymentService:
         if response_serializer.is_valid():
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
-    def pay_with_momo(self, booking):
-        r = momo.pay(booking)
+    def pay_with_momo(self, request, booking):
+        r = momo.pay(request, booking)
         if not r.ok:
             return Response(
                 "Internal server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR

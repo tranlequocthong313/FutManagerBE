@@ -59,20 +59,19 @@ class PaymentView(ViewSet):
             return Response(
                 "Transaction is not success", status=status.HTTP_400_BAD_REQUEST
             )
-        payment = Payment.objects.filter(
+        if payment := Payment.objects.filter(
             reference_code=request.data["requestId"]
-        ).first()
-        if not payment:
+        ).first():
+            return (
+                Response(
+                    "Redirected data is invalid",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+                if payment.booking.total_amount != int(request.data["amount"])
+                else Response(status.HTTP_204_NO_CONTENT)
+            )
+        else:
             return Response("Not found transaction", status=status.HTTP_404_NOT_FOUND)
-        if payment.booking.total_amount != int(request.data["amount"]):
-            return Response(
-                "Redirected data is invalid", status=status.HTTP_400_BAD_REQUEST
-            )
-        if not payment.pay(transaction_id=request.data["transId"]):
-            return Response(
-                "Internal server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        return Response(status.HTTP_204_NO_CONTENT)
 
     @action(
         methods=["GET"],
@@ -85,16 +84,19 @@ class PaymentView(ViewSet):
             self.MOMO_SUCCESS_CODE
         ):
             return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
-        if payment := Payment.objects.filter(
-            reference_code=request.GET.get("requestId")
-        ).first():
-            return (
-                Response(
-                    "Redirected data is invalid",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-                if payment.booking.total_amount != int(request.GET.get("amount"))
-                else Response("Paid with Momo successfully", status.HTTP_200_OK)
-            )
-        else:
+        if not (
+            payment := Payment.objects.filter(
+                reference_code=request.GET.get("requestId")
+            ).first()
+        ):
             return Response("Not found transaction", status=status.HTTP_400_BAD_REQUEST)
+        if payment.booking.total_amount != int(request.GET.get("amount")):
+            return Response(
+                "Redirected data is invalid",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        if not payment.pay(transaction_id=request.GET.get("transId")):
+            return Response(
+                "Internal server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        return Response("Paid with Momo successfully", status.HTTP_200_OK)

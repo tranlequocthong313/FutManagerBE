@@ -4,9 +4,10 @@ import uuid
 
 import requests
 from app import settings
+from utils.http import get_domain_url
 
 
-def pay(booking):
+def pay(request, booking):
     if not booking:
         raise ValueError("invoice must not be null")
     request_id = str(uuid.uuid4())
@@ -14,12 +15,13 @@ def pay(booking):
     order_info = f"{booking.booker_name.__str__()} thanh toán tiền đặt sân {booking.field.name.__str__()}"
     amount = str(int(booking.total_amount))
     raw_signature = (
-        f"accessKey={settings.MOMO_ACCESS_KEY}&amount={amount}&extraData=&ipnUrl={settings.MOMO_IPN_URL}&orderId={order_id}"
+        f"accessKey={settings.MOMO_ACCESS_KEY}&amount={amount}&extraData=&ipnUrl={get_domain_url(request) + settings.MOMO_IPN_URL}&orderId={order_id}"
         + "&orderInfo="
         + order_info
         + "&partnerCode="
         + settings.MOMO_PARTNER_CODE
         + "&redirectUrl="
+        + get_domain_url(request)
         + settings.MOMO_REDIRECT_URL
         + "&requestId="
         + request_id
@@ -40,8 +42,8 @@ def pay(booking):
         "amount": amount,
         "orderId": order_id,
         "orderInfo": order_info,
-        "redirectUrl": settings.MOMO_REDIRECT_URL,
-        "ipnUrl": settings.MOMO_IPN_URL,
+        "redirectUrl": get_domain_url(request) + settings.MOMO_REDIRECT_URL,
+        "ipnUrl": get_domain_url(request) + settings.MOMO_IPN_URL,
         "lang": settings.MOMO_LANG,
         "extraData": "",
         "requestType": settings.MOMO_REQUEST_TYPE,
