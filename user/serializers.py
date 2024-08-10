@@ -36,16 +36,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    phone_number = serializers.CharField()
+    username = serializers.CharField()
     password = serializers.CharField()
 
     def validate(self, data):
-        phone_number = data.get('phone_number')
+        username = data.get('username')
         password = data.get('password')
 
-        if phone_number and password:
+        if username and password:
             try:
-                user = User.objects.get(username=phone_number)
+                user = User.objects.get(username=username)
             except User.DoesNotExist:
                 raise serializers.ValidationError("Invalid credentials.")
 
