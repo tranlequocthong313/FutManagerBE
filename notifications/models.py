@@ -46,18 +46,17 @@ class Notification(BaseModel):
         return f"Notification for {self.user} - {self.send_type}"
 
 
-class NotificationRecipient(BaseModel):
+class NotificationSender(BaseModel):
     notification_content = models.ForeignKey(
         to=NotificationContent, on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        verbose_name=" Người nhận thông báo", to=User, on_delete=models.CASCADE
+        verbose_name=" Người gửi thông báo", to=User, on_delete=models.CASCADE
     )
 
     class Meta:
-        verbose_name = "Người nhận thông báo"
-        verbose_name_plural = "Người nhận thông báo"
-        # unique_together = ('notification_content', 'user')  # Đảm bảo duy nhất giữa nội dung thông báo và người nhận
+        verbose_name = "Người gửi thông báo"
+        verbose_name_plural = "Người gửi thông báo"
 
     def __str__(self):
         return f"Notification {self.notification_content.id} to {self.user.fullname}"
