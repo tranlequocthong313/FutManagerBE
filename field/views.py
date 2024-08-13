@@ -1,6 +1,7 @@
 from datetime import datetime
-
+from calendar import monthrange
 from django.db.models import Avg, Sum
+from django.db.models import Count
 from django.db.models.base import post_save
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
@@ -15,7 +16,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from field.models import Booking, Field
+from field.models import Booking, Field, FieldStatusHistory
 from field.serializers import (
     BookingListSerializer,
     BookingSerializer,
@@ -188,6 +189,65 @@ class FieldView(ListAPIView, ViewSet):
                 {"status": 500, "message": "Internal server error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+    @action(
+        methods=["get"],
+        detail=True,
+        url_path="statuses/stats",
+        url_name="statuses_stats",
+    )
+    def statuses_stats(self, request, pk=None):
+        month = request.query_params.get("month")
+        year = request.query_params.get("year")
+
+        if not month or not year:
+            current_date = datetime.now()
+            month = month or current_date.month
+            year = year or current_date.year
+        else:
+            try:
+                month = int(month)
+                year = int(year)
+            except ValueError:
+                return Response(
+                    {"status": 400, "message": "Invalid query params"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        days_in_month = monthrange(year, month)[1]
+        start_date = datetime(year, month, 1).date()
+        end_date = datetime(year, month, days_in_month).date()
+
+        field = get_object_or_404(Field, pk=pk)
+
+        statuses = FieldStatusHistory.objects.filter(
+            field=field,
+            start_date__lte=end_date,
+            end_date__gte=start_date,
+        )
+
+        maintain_days = statuses.filter(status=Field.FieldStatus.MAINTENANCE).aggregate(
+            total_days=Count("id")
+        )["total_days"]
+        booked_days = statuses.filter(status=Field.FieldStatus.BOOKED).aggregate(
+            total_days=Count("id")
+        )["total_days"]
+        available_days = days_in_month - (maintain_days + booked_days)
+
+        return Response(
+            {
+                "field_id": field.id,
+                "field_name": field.name,
+                "month": str(month).zfill(2),
+                "year": str(year),
+                "report": {
+                    "available_days": available_days,
+                    "maintain_days": maintain_days,
+                    "booked_days": booked_days,
+                },
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 @receiver(post_save, sender=Booking)
