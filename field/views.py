@@ -1,8 +1,12 @@
 from datetime import datetime
 
 from django.db.models import Avg, Sum
+from django.db.models.base import post_save
+from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from notifications.manager import NotificationManager
+from notifications.types import EntityType
 from payment.services import PaymentService
 from rest_framework import status
 from rest_framework.decorators import action
@@ -10,9 +14,6 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from review.models import Review
-from review.serializers import ReviewSerializer
-from user.models import User
 
 from field.models import Booking, Field
 from field.serializers import (
@@ -120,45 +121,6 @@ class FieldView(ListAPIView, ViewSet):
         serializer = BookingListSerializer(bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # @action(
-    #     methods=["post"],
-    #     detail=True,
-    #     url_path="ratings",
-    #     url_name="post_ratings",
-    #     permission_classes=[IsAuthenticated],
-    # )
-    # def add_rating(self, request, pk=None):
-    #     field = get_object_or_404(Field, pk=pk)
-    #     serializer = ReviewSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save(user=request.user, field=field)
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    #
-    # @action(
-    #     methods=["get"],
-    #     detail=True,
-    #     url_path="ratings",
-    #     url_name="get_ratings",
-    #     # permission_classes=[IsAuthenticated],
-    #     permission_classes=[AllowAny],
-    # )
-    # def list_ratings(self, request, pk=None):
-    #     field = get_object_or_404(Field, pk=pk)
-    #     reviews = Review.objects.filter(field=field)
-    #     serializer = ReviewSerializer(reviews, many=True)
-    #     average_rating = reviews.aggregate(Avg("rating"))["rating__avg"] or 0
-    #     total_rating = reviews.count()
-    #
-    #     return Response(
-    #         {
-    #             "count": total_rating,
-    #             "average_rating": average_rating,
-    #             "total_rating": total_rating,
-    #             "results": serializer.data,
-    #         }
-    #     )
-
     @action(
         url_path="revenue/stats",
         methods=["get"],
@@ -166,14 +128,14 @@ class FieldView(ListAPIView, ViewSet):
         permission_classes=[IsAuthenticated],  # Đảm bảo người dùng đã xác thực
     )
     def revenue_stats(self, request):
-        year = request.query_params.get('year')
-        month = request.query_params.get('month')
+        year = request.query_params.get("year")
+        month = request.query_params.get("month")
 
         if not year or not month:
-            return Response({
-                "status": 400,
-                "message": "Invalid query params"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": 400, "message": "Invalid query params"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             year = int(year)
@@ -181,45 +143,58 @@ class FieldView(ListAPIView, ViewSet):
             if month < 1 or month > 12:
                 raise ValueError("Invalid month value")
         except ValueError:
-            return Response({
-                "status": 400,
-                "message": "Invalid query params"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": 400, "message": "Invalid query params"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             bookings = Booking.objects.filter(
-                booking_date__year=year,
-                booking_date__month=month,
-                paid=True
+                booking_date__year=year, booking_date__month=month, paid=True
             )
 
-            monthly_revenue = bookings.aggregate(total_revenue=Sum('total_amount'))['total_revenue'] or 0
-            daily_revenue = bookings.values('booking_date__day').annotate(
-                total_revenue=Sum('total_amount')
-            ).order_by('booking_date__day')
+            monthly_revenue = (
+                bookings.aggregate(total_revenue=Sum("total_amount"))["total_revenue"]
+                or 0
+            )
+            daily_revenue = (
+                bookings.values("booking_date__day")
+                .annotate(total_revenue=Sum("total_amount"))
+                .order_by("booking_date__day")
+            )
 
-            daily_revenue_list = []
-            for day in daily_revenue:
-                daily_revenue_list.append({
-                    "day": day['booking_date__day'],
-                    "total_revenue": float(day['total_revenue'])
-                })
-
+            daily_revenue_list = [
+                {
+                    "day": day["booking_date__day"],
+                    "total_revenue": float(day["total_revenue"]),
+                }
+                for day in daily_revenue
+            ]
             response_data = {
                 "year": year,
                 "monthly_revenue": [
                     {
                         "month": month,
                         "total_revenue": float(monthly_revenue),
-                        "daily_revenue": daily_revenue_list
+                        "daily_revenue": daily_revenue_list,
                     }
-                ]
+                ],
             }
 
             return Response(response_data, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            return Response({
-                "status": 500,
-                "message": "Internal server error"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response(
+                {"status": 500, "message": "Internal server error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+@receiver(post_save, sender=Booking)
+def book_field(sender, instance, **kwargs):
+    if instance.paid:
+        NotificationManager.create_notification(
+            entity=instance,
+            entity_type=EntityType.BOOKING,
+            filters={"id": instance.user.id},
+        )

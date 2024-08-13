@@ -25,5 +25,6 @@ urlpatterns = [
     path("", include("service.urls")),
     path("", include("review.urls")),
     path("", include("user.urls")),
+    path("", include("notifications.urls")),
     path("admin/", admin_site.urls),
 ]

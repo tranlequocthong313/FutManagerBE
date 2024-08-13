@@ -1,12 +1,17 @@
 from datetime import datetime
 
 from django.db.models import Avg, Count
+from django.db.models.base import post_save
+from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from notifications.manager import NotificationManager
+from notifications.types import EntityType
 
 from .models import Field, Review
 from .serializers import ReviewSerializer
@@ -111,3 +116,12 @@ class RatingStatsView(viewsets.ViewSet):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+@receiver(post_save, sender=Review)
+def review(sender, instance, created, **kwargs):
+    NotificationManager.create_notification(
+        entity=instance,
+        entity_type=EntityType.REVIEW if created else EntityType.REVIEW_EDIT,
+        filters={"id": instance.user.id},
+    )
