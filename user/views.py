@@ -2,9 +2,7 @@ from rest_framework import status, mixins, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from .models import User
 
@@ -21,13 +19,13 @@ class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data['user']
+            user = serializer.validated_data["user"]
             tokens = serializer.get_tokens(user)
             user_serializer = UserSerializer(user)
-            return Response({
-                'user': user_serializer.data,
-                'tokens': tokens
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {"user": user_serializer.data, "tokens": tokens},
+                status=status.HTTP_200_OK,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
