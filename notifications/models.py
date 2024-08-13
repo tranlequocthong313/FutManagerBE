@@ -1,3 +1,4 @@
+from django.core.validators import MinLengthValidator
 from app.models import BaseModel
 from cloudinary.models import CloudinaryField
 from django.db import models
@@ -6,7 +7,16 @@ from user.models import User
 
 from .types import EntityType, SendType  # Import các Enum types
 
+
 # Tạo các model tại đây
+class FCMToken(BaseModel):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    token = models.CharField(
+        max_length=163, unique=True, validators=[MinLengthValidator(163)]
+    )
+
+    def __str__(self) -> str:
+        return f"{self.user.__str__()} - {self.device_type}"
 
 
 class NotificationContent(BaseModel):
@@ -34,7 +44,7 @@ class Notification(BaseModel):
         on_delete=models.CASCADE,
     )
     send_type = models.CharField(
-        max_length=20, choices=SendType.choices, default=SendType.UNICAST
+        max_length=20, choices=SendType.choices, default=SendType.USER
     )
 
     class Meta:

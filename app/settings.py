@@ -14,9 +14,12 @@ import base64
 import os
 from pathlib import Path
 
+
+from datetime import timedelta
 import cloudinary
 import pymysql
 from dotenv import load_dotenv
+from firebase_admin import credentials, initialize_app
 
 pymysql.install_as_MySQLdb()
 
@@ -222,24 +225,6 @@ LOGGING["handlers"]["console"]["formatter"] = "colored"
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# firebase_credentials = {
-#     "type": os.environ.get("FIREBASE_TYPE"),
-#     "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
-#     "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
-#     "private_key": base64.b64decode(
-#         os.environ.get("FIREBASE_PRIVATE_KEY").encode("ascii")
-#     ).decode("ascii"),
-#     "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
-#     "client_id": os.environ.get("FIREBASE_CLIENT_ID"),
-#     "auth_uri": os.environ.get("FIREBASE_AUTH_URI"),
-#     "token_uri": os.environ.get("FIREBASE_TOKEN_URI"),
-#     "auth_provider_x509_cert_url": os.environ.get(
-#         "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
-#     ),
-#     "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_X509_CERT_URL"),
-#     "universe_domain": os.environ.get("FIREBASE_UNIVERSE_DOMAIN"),
-# }
-
 VNPAY_TMN_CODE = os.environ.get("VNPAY_TMN_CODE")
 VNPAY_HASH_SECRET_KEY = os.environ.get("VNPAY_HASH_SECRET_KEY")
 VNPAY_PAYMENT_URL = os.environ.get("VNPAY_PAYMENT_URL")
@@ -261,11 +246,31 @@ APP_NAME = "FutManager"
 ADMIN_LIST_PER_PAGE = 10
 ADMIN_EMPTY_VALUE_DISPLAY = "-- empty --"
 
-from datetime import timedelta
-
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
 }
+
+firebase_credentials = {
+    "type": os.environ.get("FIREBASE_TYPE"),
+    "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
+    "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
+    "private_key": base64.b64decode(
+        os.environ.get("FIREBASE_PRIVATE_KEY").encode("ascii")
+    ).decode("ascii"),
+    "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
+    "client_id": os.environ.get("FIREBASE_CLIENT_ID"),
+    "auth_uri": os.environ.get("FIREBASE_AUTH_URI"),
+    "token_uri": os.environ.get("FIREBASE_TOKEN_URI"),
+    "auth_provider_x509_cert_url": os.environ.get(
+        "FIREBASE_AUTH_PROVIDER_X509_CERT_URL"
+    ),
+    "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_X509_CERT_URL"),
+    "universe_domain": os.environ.get("FIREBASE_UNIVERSE_DOMAIN"),
+}
+cred = credentials.Certificate(firebase_credentials)
+FIREBASE_ADMIN = initialize_app(cred)
+
+LOGO = "https://res.cloudinary.com/diojasks1/image/upload/v1723547540/l3k4v7ej8vvaqnysl4ai.jpg"

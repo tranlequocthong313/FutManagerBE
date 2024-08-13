@@ -13,15 +13,23 @@ class EntityType(models.TextChoices):
 
 
 class SendType(models.TextChoices):
-    UNICAST = "unicast", _("Unicast")
-    MULTICAST = "multicast", _("Multicast")
-    BROADCAST = "broadcast", _("Broadcast")
+    USER = "USER", _("Người dùng")
+    ADMIN = "ADMIN", _("Ban quản trị")
+    CUSTOMER = "CUSTOMER", _("Khách hàng")
+    CUSTOMERS = "CUSTOMERS", _("Nhiều khách hàng")
+    ALL = "ALL", _("Tất cả")
 
 
 ENTITY_TYPE_MODEL_MAPPINGS = {
     EntityType.BOOKING: Booking,
     EntityType.REVIEW: Review,
     EntityType.REVIEW_EDIT: Review,
+}
+
+ENTITY_TARGET_MAPPINGS = {
+    EntityType.BOOKING: SendType.ADMIN,
+    EntityType.REVIEW: SendType.ADMIN,
+    EntityType.REVIEW_EDIT: SendType.ADMIN,
 }
 
 ENTITY_TYPE_MESSAGE_MAPPINGS = {
