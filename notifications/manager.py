@@ -11,6 +11,7 @@ from user.models import User
 from firebase import message
 from .serializers import NotificationContentSerializer
 from app import settings
+from django.db.models import Q
 
 
 class NotificationManager:
@@ -19,7 +20,9 @@ class NotificationManager:
         if filters is None:
             filters = {}
         return (
-            User.objects.filter(is_staff=True, **filters).distinct()
+            User.objects.filter(
+                Q(is_staff=True) | Q(role="admin"), **filters
+            ).distinct()
             if target == SendType.ADMIN
             else User.objects.filter(**filters).distinct()
         )

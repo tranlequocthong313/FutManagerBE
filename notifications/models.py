@@ -29,7 +29,13 @@ class NotificationContent(BaseModel):
     class Meta:
         verbose_name = "Nội dung thông báo"
         verbose_name_plural = "Nội dung thông báo"
-        # unique_together = ('entity_id', 'entity_type')  # Đảm bảo tính duy nhất của entity_id và entity_type
+
+    @property
+    def img_url(self):
+        if self.image and not isinstance(self.image, str):
+            self.image.url_options.update({"secure": True})
+            return self.image.url
+        return self.image
 
     def __str__(self):
         return f"{self.entity_id} - {self.entity_type}"

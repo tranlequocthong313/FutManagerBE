@@ -123,5 +123,5 @@ def review(sender, instance, created, **kwargs):
     NotificationManager.create_notification(
         entity=instance,
         entity_type=EntityType.REVIEW if created else EntityType.REVIEW_EDIT,
-        filters={"id": instance.user.id},
+        sender=instance.user,
     )

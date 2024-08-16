@@ -11,8 +11,7 @@ from .models import Notification, NotificationContent, FCMToken
 class NotificationContentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         r = super().to_representation(instance)
-        if not r["image"]:
-            r["image"] = settings.LOGO
+        r["image"] = instance.img_url if instance.image else settings.LOGO
         return r
 
     class Meta:
