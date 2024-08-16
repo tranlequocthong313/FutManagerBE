@@ -22,7 +22,9 @@ class NotificationView(ListAPIView, ViewSet):
 
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        response.data["badge"] = models.Notification.objects.filter(read=False).count()
+        response.data["badge"] = models.Notification.objects.filter(
+            read=False, user=request.user
+        ).count()
         return response
 
     @action(
