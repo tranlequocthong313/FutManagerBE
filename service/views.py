@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ViewSet
 
 from service.serializers import IntroductionSerializer, CustomerSupportSerializer
@@ -24,10 +24,10 @@ class IntroductionView(ListAPIView, ViewSet):
 
 
 class CustomerSupportView(ListAPIView, ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = CustomerSupportSerializer
 
     def get_queryset(self):
-        queryset = CustomerSupport.objects.all().order_by('service_name')
+        queryset = CustomerSupport.objects.all().order_by("service_name")
 
         return queryset
