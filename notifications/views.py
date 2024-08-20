@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination
 from firebase import topic
 
 from . import models, serializers
@@ -13,6 +14,7 @@ from . import models, serializers
 class NotificationView(ListAPIView, ViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.NotificationSerializer
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         queryset = models.Notification.objects.filter(
