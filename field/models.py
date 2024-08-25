@@ -4,6 +4,7 @@ from cloudinary.models import CloudinaryField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from user.models import User
+from datetime import datetime
 
 
 class Field(BaseModel):
@@ -30,6 +31,26 @@ class Field(BaseModel):
         choices=FieldType.choices,
         default=FieldType.TYPE_5,
     )
+    __previous_status = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__previous_status = self.status
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.status != self.__previous_status:
+            latest_history = (
+                FieldStatusHistory.objects.filter(field=self.id).order_by("-id").first()
+            )
+            FieldStatusHistory.objects.create(
+                field=self,
+                status=self.__previous_status,
+                start_date=latest_history.end_date if latest_history else None,
+                end_date=datetime.now(),
+            )
+
+        super().save(force_insert, force_update, *args, **kwargs)
+        self.__previous_status = self.status
 
     class Meta:
         verbose_name = _("Sân bóng")
@@ -60,7 +81,7 @@ class FieldStatusHistory(BaseModel):
         max_length=20,
         choices=Field.FieldStatus.choices,
     )
-    start_date = models.DateField()
+    start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField()
 
     class Meta:
