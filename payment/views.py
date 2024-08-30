@@ -1,3 +1,4 @@
+from django.http import HttpResponseRedirect
 from app import settings
 from rest_framework import status
 from rest_framework.decorators import action
@@ -33,17 +34,19 @@ class PaymentView(ViewSet):
                 "Transaction is not success", status=status.HTTP_400_BAD_REQUEST
             )
 
-        if payment := Payment.objects.filter(reference_code=order_id):
-            return (
-                Response("Paid successfully", status.HTTP_200_OK)
-                if payment.pay()
-                else Response(
-                    "Internal server error",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-            )
-        else:
+        if not (payment := Payment.objects.filter(reference_code=order_id)):
             return Response("Not found transaction", status=status.HTTP_404_NOT_FOUND)
+        HttpResponseRedirect.allowed_schemes.append("gatewaylistener")
+        return (
+            HttpResponseRedirect(
+                "gatewaylistener://payment-success",
+            )
+            if payment.pay()
+            else Response(
+                "Internal server error",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        )
 
     @action(
         methods=["POST"],
@@ -99,4 +102,5 @@ class PaymentView(ViewSet):
             return Response(
                 "Internal server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        return Response("Paid with Momo successfully", status.HTTP_200_OK)
+        HttpResponseRedirect.allowed_schemes.append("gatewaylistener")
+        return HttpResponseRedirect("gatewaylistener://payment-success")

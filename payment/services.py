@@ -61,7 +61,7 @@ class PaymentService:
         )
 
         response_serializer = BookingResponseSerializer(
-            data={"payment_url": data["payUrl"]}
+            data={"payment_url": data["payUrl"], "deeplink": data["deeplink"]}
         )
         if response_serializer.is_valid():
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)

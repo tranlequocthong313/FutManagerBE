@@ -41,6 +41,7 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class BookingResponseSerializer(serializers.Serializer):
     payment_url = serializers.CharField()
+    deeplink = serializers.CharField(required=False)
 
 
 class BookingListSerializer(serializers.ModelSerializer):
