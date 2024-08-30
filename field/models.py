@@ -100,7 +100,7 @@ class Booking(BaseModel):
     total_amount = models.DecimalField(
         max_digits=10, decimal_places=2, blank=False, null=False
     )
-    booking_date = models.DateField(auto_now_add=True)
+    booking_date = models.DateField()
     note = models.TextField(blank=True, null=True)
     booker_name = models.CharField(max_length=50, blank=False, null=False)
     phone_number = models.CharField(max_length=11, blank=False, null=False)
