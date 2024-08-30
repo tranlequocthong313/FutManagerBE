@@ -27,14 +27,14 @@ class PaymentView(ViewSet):
         order_id = vnp.responseData["vnp_TxnRef"]
         vnp_ResponseCode = vnp.responseData["vnp_ResponseCode"]
         if (
-            vnp.validate_response(settings.VNPAY_HASH_SECRET_KEY)
+            not vnp.validate_response(settings.VNPAY_HASH_SECRET_KEY)
             or vnp_ResponseCode != self.VNPAY_SUCCESS_CODE
         ):
             return Response(
                 "Transaction is not success", status=status.HTTP_400_BAD_REQUEST
             )
 
-        if not (payment := Payment.objects.filter(reference_code=order_id)):
+        if not (payment := Payment.objects.filter(reference_code=order_id).first()):
             return Response("Not found transaction", status=status.HTTP_404_NOT_FOUND)
         HttpResponseRedirect.allowed_schemes.append("gatewaylistener")
         return (
