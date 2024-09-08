@@ -7,10 +7,8 @@ from .models import User
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'password', 'phone_number', 'role']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = ["full_name", "email", "password", "phone_number", "role"]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -24,13 +22,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User(
-            full_name=validated_data['full_name'],
-            email=validated_data['email'],
-            phone_number=validated_data['phone_number'],
-            role=validated_data.get('role', User.Role.CUSTOMER),
-            username=validated_data['phone_number']
+            full_name=validated_data["full_name"],
+            email=validated_data["email"],
+            phone_number=validated_data["phone_number"],
+            role=validated_data.get("role", User.Role.CUSTOMER),
+            username=validated_data["phone_number"],
         )
-        user.set_password(validated_data['password'])
+        user.set_password(validated_data["password"])
         user.save()
         return user
 
@@ -40,8 +38,8 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate(self, data):
-        username = data.get('username')
-        password = data.get('password')
+        username = data.get("username")
+        password = data.get("password")
 
         if username and password:
             try:
@@ -55,20 +53,30 @@ class LoginSerializer(serializers.Serializer):
             if not user.is_active:
                 raise serializers.ValidationError("User is deactivated.")
         else:
-            raise serializers.ValidationError("Must include 'phone_number' and 'password'.")
+            raise serializers.ValidationError(
+                "Must include 'phone_number' and 'password'."
+            )
 
-        data['user'] = user
+        data["user"] = user
         return data
 
     def get_tokens(self, user):
         refresh = RefreshToken.for_user(user)
         return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
         }
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'date_joined', 'last_login', 'full_name', 'email', 'phone_number', 'role']
+        fields = [
+            "id",
+            "date_joined",
+            "last_login",
+            "full_name",
+            "email",
+            "phone_number",
+            "role",
+        ]

@@ -258,3 +258,8 @@ def book_field(sender, instance, **kwargs):
             entity_type=EntityType.BOOKING,
             sender=instance.user,
         )
+        NotificationManager.create_notification(
+            entity=instance,
+            entity_type=EntityType.CONFIRM_BOOKING,
+            filters={"id": instance.user.id},
+        )

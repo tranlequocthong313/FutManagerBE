@@ -43,6 +43,7 @@ class PaymentService:
     def pay_with_momo(self, request, booking):
         r = momo.pay(request, booking)
         if not r.ok:
+            print(r.text)
             return Response(
                 "Internal server error", status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
