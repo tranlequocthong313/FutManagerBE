@@ -12,6 +12,6 @@ class Command(BaseCommand):
         if not User.objects.filter(is_superuser=True).exists():
             self.stdout.write(self.style.HTTP_INFO("Creating superuser..."))
             User.objects.create_superuser(
-                **settings.ADMIN_INFO["personal_information"],
+                **settings.ADMIN_INFO,
             )
             self.stdout.write(self.style.SUCCESS("Created superuser"))
