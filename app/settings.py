@@ -278,6 +278,7 @@ LOGO = "https://res.cloudinary.com/diojasks1/image/upload/v1723547540/l3k4v7ej8v
 ADMIN_INFO = {
     "full_name": os.environ.get("ADMIN_FULL_NAME"),
     "phone_number": os.environ.get("ADMIN_PHONE_NUMBER"),
+    "username": os.environ.get("ADMIN_PHONE_NUMBER"),
     "email": os.environ.get("ADMIN_EMAIL"),
     "password": os.environ.get("ADMIN_PASSWORD"),
 }
